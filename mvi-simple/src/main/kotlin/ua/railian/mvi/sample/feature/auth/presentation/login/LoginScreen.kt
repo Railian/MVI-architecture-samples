@@ -13,7 +13,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
@@ -32,10 +31,9 @@ import ua.railian.mvi.sample.feature.auth.presentation.login.LoginMviModel.Inten
 import ua.railian.mvi.sample.feature.auth.presentation.login.LoginMviModel.State
 import ua.railian.mvi.sample.feature.auth.presentation.login.component.ForgotPasswordButton
 import ua.railian.mvi.sample.feature.auth.presentation.login.component.SignUpTextLink
-import ua.railian.mvi.sample.ui.dialog.DialogHost
-import ua.railian.mvi.sample.ui.dialog.DialogHostState
 import ua.railian.mvi.sample.ui.dialog.DialogPreview
 import ua.railian.mvi.sample.ui.dialog.DialogVisuals
+import ua.railian.mvi.sample.ui.dialog.LocalDialogHostDelegate
 import ua.railian.mvi.sample.ui.dialog.error
 import ua.railian.mvi.sample.ui.theme.MviSampleTheme
 
@@ -53,16 +51,15 @@ fun LoginScreen(
         onNavigateToForgotPassword = { onNavigateToForgotPassword(state.email) },
         onNavigateToSignUp = { onNavigateToSignUp(state.email, state.password) },
     )
-    val dialogHostState = remember { DialogHostState() }
+    val dialogHostDelegate = LocalDialogHostDelegate.current
     mviModel.collectMviActions { action ->
         when (action) {
             is Action.LoggedIn -> onLoggedIn()
-            is Action.Error -> dialogHostState.showDialog(
+            is Action.Error -> dialogHostDelegate.showDialog(
                 action.error.dialogVisuals,
             )
         }
     }
-    DialogHost(dialogHostState)
 }
 
 @Composable

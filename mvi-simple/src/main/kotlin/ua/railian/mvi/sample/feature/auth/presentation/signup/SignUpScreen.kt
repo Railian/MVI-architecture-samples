@@ -12,7 +12,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -32,10 +31,9 @@ import ua.railian.mvi.sample.feature.auth.presentation.signup.SignUpMviModel.Act
 import ua.railian.mvi.sample.feature.auth.presentation.signup.SignUpMviModel.Intent
 import ua.railian.mvi.sample.feature.auth.presentation.signup.SignUpMviModel.State
 import ua.railian.mvi.sample.ui.dialog.DialogAction
-import ua.railian.mvi.sample.ui.dialog.DialogHost
-import ua.railian.mvi.sample.ui.dialog.DialogHostState
 import ua.railian.mvi.sample.ui.dialog.DialogPreview
 import ua.railian.mvi.sample.ui.dialog.DialogVisuals
+import ua.railian.mvi.sample.ui.dialog.LocalDialogHostDelegate
 import ua.railian.mvi.sample.ui.theme.MviSampleTheme
 
 @Composable
@@ -49,17 +47,16 @@ fun SignUpScreen(
         process = mviModel::processAsync,
         onNavigateBack = onNavigateBack,
     )
-    val dialogHostState = remember { DialogHostState() }
+    val dialogHostDelegate = LocalDialogHostDelegate.current
     mviModel.collectMviActions { action ->
         when (action) {
-            Action.SignedUp -> dialogHostState.showDialog(
+            Action.SignedUp -> dialogHostDelegate.showDialog(
                 signedUpSuccessfullyDialog(onSignedUp),
             )
 
             is Action.Error -> TODO()
         }
     }
-    DialogHost(dialogHostState)
 }
 
 @Composable

@@ -2,6 +2,7 @@ package ua.railian.mvi.sample.ui.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableStateListOf
 
 @Stable
@@ -43,7 +44,11 @@ fun DialogData(
 
 private class DialogDataImpl(
     override val visuals: DialogVisuals,
-    private val onDismiss: DialogData.() -> Unit
+    private val onDismiss: DialogData.() -> Unit,
 ) : DialogData {
     override fun dismiss() = onDismiss()
+}
+
+val LocalDialogHostDelegate = compositionLocalOf<DialogHostState> {
+    error("LocalDialogHostDelegate not provided")
 }

@@ -2,13 +2,13 @@ package ua.railian.mvi.sample.feature.home.presentation.dashboard
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -22,22 +22,22 @@ import ua.railian.mvi.sample.feature.home.presentation.dashboard.DashboardMviMod
 import ua.railian.mvi.sample.feature.home.presentation.dashboard.DashboardMviModel.Intent
 import ua.railian.mvi.sample.feature.home.presentation.dashboard.DashboardMviModel.State
 import ua.railian.mvi.sample.ui.dialog.DialogAction
-import ua.railian.mvi.sample.ui.dialog.DialogHost
-import ua.railian.mvi.sample.ui.dialog.DialogHostState
 import ua.railian.mvi.sample.ui.dialog.DialogPreview
 import ua.railian.mvi.sample.ui.dialog.DialogVisuals
+import ua.railian.mvi.sample.ui.dialog.LocalDialogHostDelegate
+import ua.railian.mvi.sample.ui.dialog.error
 import ua.railian.mvi.sample.ui.theme.MviSampleTheme
 
 @Composable
 fun DashboardScreen(
+    onLoggedOut: () -> Unit,
     mviModel: DashboardMviModel = koinViewModel(),
-    onLoggedOut: () -> Unit = {},
 ) {
-    val dialogHostState = remember { DialogHostState() }
+    val dialogHostDelegate = LocalDialogHostDelegate.current
     DashboardScreen(
         state = mviModel.renderMviState(),
         onLogout = {
-            dialogHostState.showDialog(
+            dialogHostDelegate.showDialog(
                 logoutConfirmationDialog(
                     onConfirm = { mviModel.processAsync(Intent.Logout) }
                 ),
@@ -47,13 +47,13 @@ fun DashboardScreen(
     mviModel.collectMviActions { action ->
         when (action) {
             is Action.LoggedOut -> onLoggedOut()
-            is Action.Error -> TODO()
+            is Action.Error -> dialogHostDelegate.showDialog(
+                DialogVisuals.error(action.message)
+            )
         }
     }
-    DialogHost(dialogHostState)
 }
 
-@Suppress("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 private fun DashboardScreen(
     state: State,
@@ -84,7 +84,9 @@ private fun DashboardScreen(
                 )
             }
         }
-    ) { innerPadding -> }
+    ) { innerPadding ->
+        Spacer(modifier = Modifier.padding(innerPadding))
+    }
 }
 
 //region Dialogs

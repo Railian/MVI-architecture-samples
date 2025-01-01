@@ -8,7 +8,12 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import ua.railian.mvi.sample.ui.dialog.DialogHost
+import ua.railian.mvi.sample.ui.dialog.DialogHostState
+import ua.railian.mvi.sample.ui.dialog.LocalDialogHostDelegate
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -39,19 +44,22 @@ fun MviSampleTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    val dialogHostDelegate = remember { DialogHostState() }
+    CompositionLocalProvider(LocalDialogHostDelegate provides dialogHostDelegate) {
+        val colorScheme = when {
+            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                val context = LocalContext.current
+                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            }
+
+            darkTheme -> DarkColorScheme
+            else -> LightColorScheme
         }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content,
+        )
     }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    DialogHost(dialogHostDelegate)
 }

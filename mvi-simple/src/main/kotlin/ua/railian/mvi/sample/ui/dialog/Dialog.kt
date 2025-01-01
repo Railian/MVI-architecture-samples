@@ -56,10 +56,7 @@ fun DialogPreview(
         background()
         Dialog(
             dialogData = remember(visuals) {
-                object : DialogData {
-                    override val visuals = visuals
-                    override fun dismiss() = Unit
-                }
+                DialogData(visuals) {}
             }
         )
     }

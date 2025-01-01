@@ -12,7 +12,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
@@ -29,10 +28,9 @@ import ua.railian.mvi.sample.feature.auth.presentation.forgotpassword.ForgotPass
 import ua.railian.mvi.sample.feature.auth.presentation.forgotpassword.ForgotPasswordMviModel.Intent
 import ua.railian.mvi.sample.feature.auth.presentation.forgotpassword.ForgotPasswordMviModel.State
 import ua.railian.mvi.sample.ui.dialog.DialogAction
-import ua.railian.mvi.sample.ui.dialog.DialogHost
-import ua.railian.mvi.sample.ui.dialog.DialogHostState
 import ua.railian.mvi.sample.ui.dialog.DialogPreview
 import ua.railian.mvi.sample.ui.dialog.DialogVisuals
+import ua.railian.mvi.sample.ui.dialog.LocalDialogHostDelegate
 import ua.railian.mvi.sample.ui.theme.MviSampleTheme
 
 @Composable
@@ -45,18 +43,16 @@ fun ForgotPasswordScreen(
         process = mviModel::processAsync,
         onNavigateBack = onNavigateBack,
     )
-    val dialogHostState = remember { DialogHostState() }
+    val dialogHostDelegate = LocalDialogHostDelegate.current
     mviModel.collectMviActions { action ->
         when (action) {
-            is Action.InstructionsSent -> dialogHostState.showDialog(
+            is Action.InstructionsSent -> dialogHostDelegate.showDialog(
                 instructionsSentDialog(onNavigateBack)
             )
         }
     }
-    DialogHost(dialogHostState)
 }
 
-@Suppress("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 private fun ForgotPasswordScreen(
     state: State,
@@ -132,7 +128,7 @@ private val ForgotPasswordError.Email.message: String
 private fun ForgotPasswordScreenPreview() {
     MviSampleTheme {
         ForgotPasswordScreen(
-            state = State(email = "jhon.doe@gmail.com")
+            state = State(email = "jhon.doe@gmail.com"),
         )
     }
 }
